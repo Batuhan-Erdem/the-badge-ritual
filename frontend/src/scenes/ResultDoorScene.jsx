@@ -19,6 +19,20 @@ function ResultDoorScene({ badge, result, onRestart }) {
         )}
       </div>
 
+      {result.audioUrl && (
+        <div className="audio-block">
+          <h2>Voice Narration</h2>
+          <p>
+            Listen to the ritual text as a quiet spoken narration before leaving
+            the badge.
+          </p>
+
+          <audio controls src={result.audioUrl}>
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+      )}
+
       <div className="result-block">
         <h2>Your Badge</h2>
         <p>{badge}</p>
@@ -40,3 +54,4 @@ function ResultDoorScene({ badge, result, onRestart }) {
 }
 
 export default ResultDoorScene
+

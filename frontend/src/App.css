@@ -171,3 +171,23 @@ h2 {
   max-height: 620px;
   object-fit: cover;
 }
+
+
+.audio-block {
+  margin: 24px 0;
+  padding: 22px;
+  border-radius: 20px;
+  border: 1px solid rgba(243, 234, 215, 0.14);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.audio-block p {
+  margin: 0 0 16px;
+  color: rgba(243, 234, 215, 0.72);
+  line-height: 1.6;
+}
+
+.audio-block audio {
+  width: 100%;
+  margin-top: 4px;
+}

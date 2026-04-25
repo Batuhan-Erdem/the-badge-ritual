@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from app.services.llm_service import generate_ritual_response
 from app.services.image_service import generate_ritual_image
+from app.services.tts_service import generate_ritual_voice
 
 router = APIRouter(prefix="/api/ritual", tags=["ritual"])
 
@@ -28,10 +29,18 @@ def create_ritual(request: RitualRequest):
 
         image_url = f"http://127.0.0.1:8000/generated/{generated_file_name}"
 
+        generated_audio_file_name = generate_ritual_voice(
+            ritual_result["ttsText"]
+        )
+
+        audio_url = (
+            f"http://127.0.0.1:8000/generated/audio/{generated_audio_file_name}"
+        )
+
         return {
             **ritual_result,
             "imageUrl": image_url,
-            "audioUrl": None,
+            "audioUrl": audio_url,
             "userInput": {
                 "badge": request.badge,
                 "origin": request.origin,
