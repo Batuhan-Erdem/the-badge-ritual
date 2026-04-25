@@ -262,3 +262,195 @@ h2 {
     transform: translateY(0);
   }
 }
+
+
+.loading-scene .scene-text {
+  max-width: 640px;
+}
+
+.ritual-loading-card {
+  margin-top: 32px;
+  padding: 24px;
+  border-radius: 22px;
+  border: 1px solid rgba(243, 234, 215, 0.14);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.threshold-line {
+  height: 1px;
+  margin-bottom: 22px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(201, 149, 85, 0.85),
+    transparent
+  );
+}
+
+.loading-steps {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.loading-steps span {
+  color: rgba(243, 234, 215, 0.72);
+  letter-spacing: 0.04em;
+  animation: pulseStep 1.8s ease-in-out infinite;
+}
+
+.loading-steps span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-steps span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.loading-steps span:nth-child(4) {
+  animation-delay: 0.6s;
+}
+
+@keyframes pulseStep {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: translateX(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateX(6px);
+  }
+}
+
+
+.result-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(300px, 1.1fr);
+  gap: 28px;
+  align-items: start;
+  margin-top: 32px;
+}
+
+.ritual-output-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.result-layout .door-artwork-frame {
+  margin: 0;
+}
+
+.result-layout .audio-block,
+.result-layout .result-block {
+  margin-top: 0;
+}
+
+.result-layout button {
+  justify-self: start;
+}
+
+@media (max-width: 860px) {
+  .result-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .door-artwork {
+    max-height: 520px;
+  }
+}
+
+
+.scene {
+  animation: sceneEnter 0.55s ease both;
+}
+
+button:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(201, 149, 85, 0.85);
+  outline-offset: 4px;
+}
+
+textarea:focus {
+  border-color: rgba(201, 149, 85, 0.68);
+  background: rgba(10, 10, 10, 0.48);
+}
+
+button {
+  font-family: inherit;
+}
+
+.result-scene {
+  width: min(1120px, 100%);
+}
+
+.result-scene h1 {
+  max-width: 980px;
+}
+
+.result-block,
+.audio-block,
+.final-release-block {
+  box-shadow: inset 0 1px 0 rgba(243, 234, 215, 0.04);
+}
+
+.door-artwork-frame {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
+}
+
+.door-artwork {
+  min-height: 360px;
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 18px;
+  }
+
+  .scene {
+    padding: 28px;
+    border-radius: 22px;
+  }
+
+  h1 {
+    font-size: clamp(32px, 12vw, 48px);
+  }
+
+  .scene-text {
+    font-size: 16px;
+  }
+
+  textarea {
+    font-size: 15px;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .result-layout button {
+    justify-self: stretch;
+  }
+
+  .door-artwork {
+    min-height: 280px;
+    max-height: 420px;
+  }
+
+  .release-overlay p {
+    font-size: clamp(20px, 7vw, 32px);
+  }
+}
+
+@keyframes sceneEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
