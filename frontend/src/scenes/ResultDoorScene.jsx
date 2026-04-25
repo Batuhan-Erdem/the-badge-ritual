@@ -5,8 +5,18 @@ function ResultDoorScene({ badge, result, onRestart }) {
 
       <h1>{result.badgeTitle}</h1>
 
-      <div className="door-placeholder">
-        <span>Symbolic Door Artwork</span>
+      <div className="door-artwork-frame">
+        {result.imageUrl ? (
+          <img
+            src={result.imageUrl}
+            alt="AI generated symbolic door artwork"
+            className="door-artwork"
+          />
+        ) : (
+          <div className="door-placeholder">
+            <span>Symbolic Door Artwork</span>
+          </div>
+        )}
       </div>
 
       <div className="result-block">

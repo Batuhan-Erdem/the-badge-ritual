@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.ritual_routes import router as ritual_router
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
     title="The Badge Ritual API",
@@ -17,7 +18,7 @@ app.add_middleware(
 )
 
 app.include_router(ritual_router)
-
+app.mount("/generated", StaticFiles(directory="generated"), name="generated")
 
 @app.get("/")
 def health_check():
