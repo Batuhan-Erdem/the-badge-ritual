@@ -18,8 +18,19 @@ MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 def generate_ritual_response(badge: str, origin: str, cost: str) -> dict:
     """
     Generates the ritual response using RAG context + OpenAI LLM.
+
     Returns a dictionary with:
-    badgeTitle, historicalEcho, releaseText, imagePrompt, ttsText.
+    - badgeTitle
+    - historicalEcho
+    - releaseText
+    - imagePrompt
+    - ttsText
+    - doorGuidance
+    - badgePlacementGuidance
+    - afterBadgeGuidance
+    - knockGuidance
+    - doorResponseGuidance
+    - doorMaterial
     """
 
     full_context = build_full_context(
@@ -35,7 +46,11 @@ def generate_ritual_response(badge: str, origin: str, cost: str) -> dict:
         input=[
             {
                 "role": "system",
-                "content": "You are a careful JSON-generating ritual writer for an interactive digital artwork.",
+                "content": (
+                    "You are a careful JSON-generating ritual writer for an "
+                    "interactive digital artwork. Always return valid JSON "
+                    "that matches the requested schema."
+                ),
             },
             {
                 "role": "user",
@@ -65,6 +80,31 @@ def generate_ritual_response(badge: str, origin: str, cost: str) -> dict:
                         "ttsText": {
                             "type": "string"
                         },
+                        "doorGuidance": {
+                            "type": "string"
+                        },
+                        "badgePlacementGuidance": {
+                            "type": "string"
+                        },
+                        "afterBadgeGuidance": {
+                            "type": "string"
+                        },
+                        "knockGuidance": {
+                            "type": "string"
+                        },
+                        "doorResponseGuidance": {
+                            "type": "string"
+                        },
+                        "doorMaterial": {
+                            "type": "string",
+                            "enum": [
+                                "old_wood",
+                                "heavy_wood",
+                                "rusted_metal",
+                                "dark_iron",
+                                "fragile_wood"
+                            ]
+                        },
                     },
                     "required": [
                         "badgeTitle",
@@ -72,6 +112,12 @@ def generate_ritual_response(badge: str, origin: str, cost: str) -> dict:
                         "releaseText",
                         "imagePrompt",
                         "ttsText",
+                        "doorGuidance",
+                        "badgePlacementGuidance",
+                        "afterBadgeGuidance",
+                        "knockGuidance",
+                        "doorResponseGuidance",
+                        "doorMaterial",
                     ],
                 },
                 "strict": True,
@@ -87,4 +133,3 @@ def generate_ritual_response(badge: str, origin: str, cost: str) -> dict:
     )
 
     return ritual_data
-
