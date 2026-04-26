@@ -1,5 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import './ResultDoorScene.css'
+import {
+  startAmbientSoundscape,
+  stopAmbientSoundscape,
+} from '../services/ambientSoundscape'
 
 const fallbackGuidance = {
   en: {
@@ -37,6 +41,10 @@ const uiText = {
     voiceNarration: 'Voice Narration',
     voiceNarrationDescription:
       'Listen to the ritual text as a quiet spoken narration before approaching the threshold.',
+    ambientNote:
+      'A very soft instrumental atmosphere will rise under the voice while it plays.',
+    playNarration: 'Play Narration',
+    pauseNarration: 'Pause Narration',
     yourBadge: 'Your Badge',
     doorCharacter: 'Door Character',
     historicalEcho: 'Historical Echo',
@@ -55,7 +63,6 @@ const uiText = {
     beginAnother: 'Begin Another Ritual',
     overlayLineOne: 'Not because everything is finished,',
     overlayLineTwo: 'but because you are no longer carrying it in the same way.',
-    badgeToken: 'Badge',
   },
   tr: {
     ritualThreshold: 'Ritüel Eşiği',
@@ -65,6 +72,10 @@ const uiText = {
     voiceNarration: 'Sesli Anlatı',
     voiceNarrationDescription:
       'Eşiğe yaklaşmadan önce ritüel metnini sakin bir sesli anlatı olarak dinleyebilirsin.',
+    ambientNote:
+      'Ses çalarken arka planda çok hafif, sözsüz bir atmosfer yükselecek.',
+    playNarration: 'Anlatıyı Başlat',
+    pauseNarration: 'Anlatıyı Durdur',
     yourBadge: 'Rozetin',
     doorCharacter: 'Kapının Karakteri',
     historicalEcho: 'Tarihsel Yankı',
@@ -83,7 +94,6 @@ const uiText = {
     beginAnother: 'Yeni Bir Ritüele Başla',
     overlayLineOne: 'Her şey bittiği için değil,',
     overlayLineTwo: 'artık onu aynı şekilde taşımadığın için.',
-    badgeToken: 'Rozet',
   },
 }
 
@@ -106,15 +116,21 @@ function detectLanguage(text) {
     'özgürlük',
   ]
 
-  if (turkishCharacters.test(normalized)) {
-    return 'tr'
-  }
-
-  if (turkishWords.some((word) => normalized.includes(word))) {
-    return 'tr'
-  }
+  if (turkishCharacters.test(normalized)) return 'tr'
+  if (turkishWords.some((word) => normalized.includes(word))) return 'tr'
 
   return 'en'
+}
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds)) return '0:00'
+
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, '0')
+
+  return `${mins}:${secs}`
 }
 
 function playKnockSound(doorMaterial, knockNumber) {
@@ -207,18 +223,22 @@ const doorMaterialLabels = {
 }
 
 function ResultDoorScene({ badge, result, onRestart }) {
+  const audioRef = useRef(null)
+
   const [ritualStep, setRitualStep] = useState('door')
   const [knockCount, setKnockCount] = useState(0)
   const [isKnocking, setIsKnocking] = useState(false)
+  const [isNarrationPlaying, setIsNarrationPlaying] = useState(false)
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0)
+  const [audioDuration, setAudioDuration] = useState(0)
 
   const language = detectLanguage(
-    `${badge} ${result.historicalEcho || ''} ${result.releaseText || ''}`
+    `${badge} ${result?.historicalEcho || ''} ${result?.releaseText || ''}`
   )
 
   const text = uiText[language]
   const fallback = fallbackGuidance[language]
-
-  const doorMaterial = result.doorMaterial || 'old_wood'
+  const doorMaterial = result?.doorMaterial || 'old_wood'
 
   const isBadgePlaced =
     ritualStep === 'afterBadge' ||
@@ -228,14 +248,40 @@ function ResultDoorScene({ badge, result, onRestart }) {
   const isDoorResponded = ritualStep === 'doorResponse'
 
   const guidanceByStep = {
-    door: result.doorGuidance || fallback.door,
-    badge: result.badgePlacementGuidance || fallback.badge,
-    afterBadge: result.afterBadgeGuidance || fallback.afterBadge,
-    knock: result.knockGuidance || fallback.knock,
-    doorResponse: result.doorResponseGuidance || fallback.response,
+    door: result?.doorGuidance || fallback.door,
+    badge: result?.badgePlacementGuidance || fallback.badge,
+    afterBadge: result?.afterBadgeGuidance || fallback.afterBadge,
+    knock: result?.knockGuidance || fallback.knock,
+    doorResponse: result?.doorResponseGuidance || fallback.response,
+  }
+
+  const progress =
+    audioDuration > 0 ? Math.min((audioCurrentTime / audioDuration) * 100, 100) : 0
+
+  function stopNarrationAndAmbient() {
+    if (audioRef.current) {
+      audioRef.current.pause()
+    }
+
+    setIsNarrationPlaying(false)
+    stopAmbientSoundscape()
+  }
+
+  async function toggleNarration() {
+    if (!audioRef.current) return
+
+    if (isNarrationPlaying) {
+      stopNarrationAndAmbient()
+      return
+    }
+
+    await startAmbientSoundscape(doorMaterial)
+    await audioRef.current.play()
+    setIsNarrationPlaying(true)
   }
 
   function goToBadgePlacement() {
+    stopNarrationAndAmbient()
     setRitualStep('badge')
   }
 
@@ -269,40 +315,54 @@ function ResultDoorScene({ badge, result, onRestart }) {
     }
   }
 
+  function handleRestart() {
+    stopNarrationAndAmbient()
+    onRestart()
+  }
+
   return (
-    <section
-      className={`scene result-scene ${
-        isDoorResponded ? 'released' : ''
-      }`}
-    >
+    <section className={`scene result-scene ${isDoorResponded ? 'released' : ''}`}>
       <p className="eyebrow">
         {isDoorResponded ? text.doorAnswered : text.ritualThreshold}
       </p>
 
-      <h1>{isDoorResponded ? text.youMayKnock : result.badgeTitle}</h1>
+      <h1>{isDoorResponded ? text.youMayKnock : result?.badgeTitle}</h1>
 
-      <div className="result-layout">
+      <div className="result-layout ritual-result-layout">
         <div
           className={`door-artwork-frame ritual-door-stage material-${doorMaterial} ${
             isDoorResponded ? 'door-has-responded' : ''
           }`}
         >
-          {result.imageUrl ? (
-            <img
-              src={result.imageUrl}
-              alt="AI generated symbolic door artwork"
-              className={`door-artwork ${
-                isDoorResponded ? 'door-artwork-opened' : ''
-              }`}
-            />
+          {result?.imageUrl ? (
+            <>
+              <img
+                src={result.imageUrl}
+                alt="AI generated symbolic door artwork"
+                className={`door-artwork ${
+                  isDoorResponded ? 'door-artwork-opened' : ''
+                }`}
+              />
+
+              <div
+                className="door-panel door-panel-left"
+                style={{ backgroundImage: `url(${result.imageUrl})` }}
+              />
+              <div
+                className="door-panel door-panel-right"
+                style={{ backgroundImage: `url(${result.imageUrl})` }}
+              />
+            </>
           ) : (
             <div className="door-placeholder">
               <span>Symbolic Door Artwork</span>
             </div>
           )}
 
+          {isDoorResponded && <div className="door-depth-glow" />}
+
           <div className={`badge-token ${isBadgePlaced ? 'badge-placed' : ''}`}>
-            <span>{text.badgeToken}</span>
+            <span aria-hidden="true" />
           </div>
 
           {ritualStep === 'knock' && (
@@ -339,22 +399,60 @@ function ResultDoorScene({ badge, result, onRestart }) {
             <p>{guidanceByStep[ritualStep]}</p>
           </div>
 
-          {result.audioUrl && ritualStep === 'door' && (
-            <div className="audio-block">
+          {result?.audioUrl && ritualStep === 'door' && (
+            <div className="audio-block custom-audio-block">
               <h2>{text.voiceNarration}</h2>
               <p>{text.voiceNarrationDescription}</p>
+              <p className="ambient-note">{text.ambientNote}</p>
 
-              <audio controls src={result.audioUrl}>
-                Your browser does not support the audio element.
-              </audio>
+              <audio
+                ref={audioRef}
+                src={result.audioUrl}
+                preload="metadata"
+                onLoadedMetadata={(event) =>
+                  setAudioDuration(event.currentTarget.duration)
+                }
+                onTimeUpdate={(event) =>
+                  setAudioCurrentTime(event.currentTarget.currentTime)
+                }
+                onEnded={() => {
+                  setIsNarrationPlaying(false)
+                  setAudioCurrentTime(0)
+                  stopAmbientSoundscape()
+                }}
+              />
+
+              <div className="custom-audio-player">
+                <button
+                  className="narration-toggle"
+                  onClick={toggleNarration}
+                  type="button"
+                >
+                  <span className="narration-icon">
+                    {isNarrationPlaying ? 'Ⅱ' : '▶'}
+                  </span>
+                  <span>
+                    {isNarrationPlaying
+                      ? text.pauseNarration
+                      : text.playNarration}
+                  </span>
+                </button>
+
+                <div className="audio-progress-shell">
+                  <div
+                    className="audio-progress-fill"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+
+                <span className="audio-time">
+                  {formatTime(audioCurrentTime)} / {formatTime(audioDuration)}
+                </span>
+              </div>
             </div>
           )}
 
-          <div
-            className={`result-block badge-block ${
-              isBadgePlaced ? 'badge-faded' : ''
-            }`}
-          >
+          <div className={`result-block badge-block ${isBadgePlaced ? 'badge-faded' : ''}`}>
             <h2>{text.yourBadge}</h2>
             <p>{badge}</p>
           </div>
@@ -371,12 +469,12 @@ function ResultDoorScene({ badge, result, onRestart }) {
 
               <div className="result-block">
                 <h2>{text.historicalEcho}</h2>
-                <p>{result.historicalEcho}</p>
+                <p>{result?.historicalEcho}</p>
               </div>
 
               <div className="result-block">
                 <h2>{text.releaseText}</h2>
-                <p>{result.releaseText}</p>
+                <p>{result?.releaseText}</p>
               </div>
 
               <button onClick={goToBadgePlacement}>
@@ -406,8 +504,7 @@ function ResultDoorScene({ badge, result, onRestart }) {
           {isDoorResponded && (
             <div className="final-release-block">
               <p>{text.finalRelease}</p>
-
-              <button onClick={onRestart}>{text.beginAnother}</button>
+              <button onClick={handleRestart}>{text.beginAnother}</button>
             </div>
           )}
         </div>

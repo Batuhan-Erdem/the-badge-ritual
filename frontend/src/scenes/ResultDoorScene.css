@@ -22,26 +22,179 @@
   font-size: 11px;
 }
 
+.ritual-result-layout {
+  display: grid;
+  grid-template-columns: minmax(620px, 1.45fr) minmax(320px, 0.75fr);
+  gap: 32px;
+  align-items: start;
+}
+
 .ritual-door-stage {
   position: relative;
   overflow: hidden;
+  perspective: 1200px;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-height: 680px;
+  background:
+    radial-gradient(circle at center, rgba(201, 149, 85, 0.08), transparent 58%),
+    rgba(0, 0, 0, 0.32);
+}
+
+.result-layout .door-artwork-frame {
+  margin: 0;
+}
+
+.door-artwork {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 680px;
+  max-height: none;
+  object-fit: cover;
+  object-position: center center;
+  transform: scale(1.18);
+  background: rgba(0, 0, 0, 0.3);
+  transition:
+    transform 1.1s ease,
+    filter 1.1s ease,
+    opacity 1.1s ease;
+}
+
+.door-artwork-opened {
+  opacity: 0.22;
+  filter: brightness(1.16) contrast(1.05) saturate(1.04);
+  transform: scale(1.2);
+}
+
+.door-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.2%;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: 236% 100%;
+  transition:
+    transform 1.4s cubic-bezier(0.16, 0.84, 0.24, 1),
+    opacity 0.4s ease,
+    filter 1.2s ease;
+}
+
+.door-panel-left {
+  left: 0;
+  transform-origin: left center;
+  background-position: left center;
+}
+
+.door-panel-right {
+  right: 0;
+  transform-origin: right center;
+  background-position: right center;
+}
+
+.door-has-responded {
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.46),
+    0 0 90px rgba(201, 149, 85, 0.18);
+}
+
+.door-has-responded .door-panel {
+  opacity: 1;
+  filter: brightness(1.02) contrast(1.05);
+}
+
+.door-has-responded .door-panel-left {
+  transform: rotateY(-18deg) translateX(-24px) scaleX(0.97);
+  box-shadow: inset -48px 0 90px rgba(0, 0, 0, 0.36);
+}
+
+.door-has-responded .door-panel-right {
+  transform: rotateY(18deg) translateX(24px) scaleX(0.97);
+  box-shadow: inset 48px 0 90px rgba(0, 0, 0, 0.36);
+}
+
+.door-depth-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  background:
+    radial-gradient(circle at center, rgba(247, 217, 165, 0.42), transparent 36%),
+    linear-gradient(90deg, transparent 40%, rgba(255, 235, 190, 0.42), transparent 60%);
+  animation: depthGlowAppears 1.2s ease forwards;
+  pointer-events: none;
+}
+
+.door-opening-seam {
+  position: absolute;
+  top: 7%;
+  bottom: 7%;
+  left: 50%;
+  width: 12px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      180deg,
+      transparent,
+      rgba(247, 217, 165, 0.72),
+      rgba(255, 244, 204, 1),
+      rgba(247, 217, 165, 0.68),
+      transparent
+    );
+  box-shadow:
+    0 0 28px rgba(247, 217, 165, 0.96),
+    0 0 76px rgba(201, 149, 85, 0.62),
+    0 0 120px rgba(247, 217, 165, 0.35);
+  opacity: 0;
+  animation: seamOpens 1.1s ease forwards;
+  z-index: 5;
+}
+
+.material-dark_iron .door-opening-seam,
+.material-rusted_metal .door-opening-seam {
+  background:
+    linear-gradient(
+      180deg,
+      transparent,
+      rgba(180, 205, 224, 0.58),
+      rgba(246, 237, 213, 0.96),
+      rgba(180, 205, 224, 0.52),
+      transparent
+    );
+  box-shadow:
+    0 0 24px rgba(210, 229, 242, 0.76),
+    0 0 60px rgba(122, 162, 186, 0.42),
+    0 0 100px rgba(247, 217, 165, 0.22);
+}
+
+.material-fragile_wood .door-opening-seam {
+  width: 6px;
+  opacity: 0.84;
 }
 
 .badge-token {
   position: absolute;
   left: 50%;
-  bottom: 22px;
+  bottom: 24px;
   transform: translateX(-50%);
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(243, 234, 215, 0.24);
-  background: rgba(20, 16, 12, 0.76);
-  color: rgba(243, 234, 215, 0.86);
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38);
-  z-index: 5;
+  width: 54px;
+  height: 42px;
+  border-radius: 50% 50% 46% 46%;
+  border: 1px solid rgba(243, 234, 215, 0.28);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(247, 217, 165, 0.58), transparent 32%),
+    linear-gradient(145deg, rgba(124, 83, 42, 0.92), rgba(40, 27, 18, 0.92));
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.42),
+    inset 0 1px 7px rgba(255, 255, 255, 0.18);
+  z-index: 8;
   transition:
     bottom 0.8s ease,
     opacity 0.8s ease,
@@ -49,33 +202,51 @@
     background 0.8s ease;
 }
 
+.badge-token::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  width: 26px;
+  height: 20px;
+  transform: translateX(-50%);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+  background: rgba(75, 48, 28, 0.84);
+  border: 1px solid rgba(243, 234, 215, 0.12);
+}
+
 .badge-token.badge-placed {
-  bottom: 8px;
-  opacity: 0.58;
-  transform: translateX(-50%) scale(0.92);
-  background: rgba(89, 60, 35, 0.62);
+  bottom: 12px;
+  opacity: 0.62;
+  transform: translateX(-50%) scale(0.88) rotate(-4deg);
+}
+
+.badge-token span {
+  display: none;
 }
 
 .door-knocker {
   position: absolute;
   left: 50%;
-  top: 46%;
+  top: 29%;
   transform: translate(-50%, -50%);
-  width: 104px;
-  height: 104px;
+  width: 82px;
+  height: 82px;
   padding: 0;
   border-radius: 50%;
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at 35% 30%, rgba(247, 217, 165, 0.9), rgba(122, 75, 34, 0.92)),
-    rgba(201, 149, 85, 0.34);
-  border: 1px solid rgba(247, 217, 165, 0.62);
+    radial-gradient(circle at 35% 30%, rgba(247, 217, 165, 0.48), rgba(122, 75, 34, 0.24)),
+    rgba(20, 14, 8, 0.1);
+  border: 1px solid rgba(247, 217, 165, 0.32);
   box-shadow:
-    0 20px 54px rgba(0, 0, 0, 0.5),
-    inset 0 2px 8px rgba(255, 255, 255, 0.22);
-  z-index: 6;
+    0 0 0 6px rgba(201, 149, 85, 0.08),
+    0 14px 38px rgba(0, 0, 0, 0.36),
+    inset 0 2px 8px rgba(255, 255, 255, 0.1);
+  z-index: 9;
   animation: knockerBreath 1.8s ease-in-out infinite;
+  backdrop-filter: blur(1px);
 }
 
 .door-knocker.knocking {
@@ -83,18 +254,18 @@
 }
 
 .knocker-ring {
-  width: 52px;
-  height: 52px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  border: 7px solid rgba(38, 25, 15, 0.82);
-  border-top-color: rgba(247, 217, 165, 0.85);
+  border: 6px solid rgba(38, 25, 15, 0.78);
+  border-top-color: rgba(247, 217, 165, 0.74);
   box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.42);
 }
 
 .knocker-label {
   position: absolute;
   left: 50%;
-  top: calc(100% + 12px);
+  top: calc(100% + 10px);
   transform: translateX(-50%);
   white-space: nowrap;
   padding: 8px 12px;
@@ -112,77 +283,66 @@
   font-size: 14px;
 }
 
-.door-has-responded {
-  box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.46),
-    0 0 80px rgba(201, 149, 85, 0.16);
-}
-
-.door-has-responded .door-artwork {
-  transform: scale(1.018);
-}
-
-.door-artwork {
-  transition:
-    transform 1.1s ease,
-    filter 1.1s ease,
-    opacity 1.1s ease;
-}
-
-.door-artwork-opened {
-  filter: brightness(1.12) contrast(1.04) saturate(1.02);
-}
-
-.door-opening-seam {
-  position: absolute;
-  top: 8%;
-  bottom: 8%;
-  left: 50%;
-  width: 7px;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background:
-    linear-gradient(
-      180deg,
-      transparent,
-      rgba(247, 217, 165, 0.65),
-      rgba(255, 244, 204, 0.96),
-      rgba(247, 217, 165, 0.58),
-      transparent
-    );
-  box-shadow:
-    0 0 22px rgba(247, 217, 165, 0.86),
-    0 0 54px rgba(201, 149, 85, 0.52),
-    0 0 92px rgba(247, 217, 165, 0.28);
-  opacity: 0;
-  animation: seamOpens 1.1s ease forwards;
-  z-index: 3;
-}
-
-.material-dark_iron .door-opening-seam,
-.material-rusted_metal .door-opening-seam {
-  background:
-    linear-gradient(
-      180deg,
-      transparent,
-      rgba(180, 205, 224, 0.55),
-      rgba(246, 237, 213, 0.95),
-      rgba(180, 205, 224, 0.48),
-      transparent
-    );
-  box-shadow:
-    0 0 22px rgba(210, 229, 242, 0.72),
-    0 0 54px rgba(122, 162, 186, 0.38),
-    0 0 92px rgba(247, 217, 165, 0.22);
-}
-
-.material-fragile_wood .door-opening-seam {
-  width: 4px;
-  opacity: 0.82;
-}
-
 .release-overlay {
-  z-index: 4;
+  z-index: 6;
+}
+
+.custom-audio-player {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(201, 149, 85, 0.22);
+  background:
+    linear-gradient(135deg, rgba(201, 149, 85, 0.12), rgba(255, 255, 255, 0.04)),
+    rgba(0, 0, 0, 0.28);
+}
+
+.narration-toggle {
+  width: auto;
+  min-width: 156px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.narration-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.audio-progress-shell {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(243, 234, 215, 0.14);
+}
+
+.audio-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #c99555, #f7d9a5);
+  transition: width 0.2s ease;
+}
+
+.audio-time {
+  color: rgba(243, 234, 215, 0.68);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.ambient-note {
+  margin-top: -6px !important;
+  margin-bottom: 16px !important;
+  color: rgba(201, 149, 85, 0.78) !important;
+  font-size: 14px;
+  line-height: 1.55 !important;
 }
 
 @keyframes knockerBreath {
@@ -192,7 +352,7 @@
   }
 
   50% {
-    transform: translate(-50%, -50%) scale(1.045);
+    transform: translate(-50%, -50%) scale(1.06);
   }
 }
 
@@ -219,35 +379,79 @@
 
   45% {
     opacity: 1;
-    width: 5px;
+    width: 8px;
     filter: blur(2px);
   }
 
   100% {
     opacity: 1;
-    width: 7px;
+    width: 12px;
     filter: blur(0);
   }
 }
 
+@keyframes depthGlowAppears {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.84);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 980px) {
+  .ritual-result-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ritual-door-stage {
+    min-height: 620px;
+  }
+
+  .door-artwork {
+    min-height: 620px;
+  }
+}
+
 @media (max-width: 640px) {
+  .ritual-door-stage {
+    min-height: 440px;
+  }
+
+  .door-artwork {
+    min-height: 440px;
+    transform: scale(1.12);
+  }
+
   .door-knocker {
-    width: 84px;
-    height: 84px;
+    top: 29%;
+    width: 72px;
+    height: 72px;
   }
 
   .knocker-ring {
-    width: 42px;
-    height: 42px;
-    border-width: 6px;
+    width: 36px;
+    height: 36px;
+    border-width: 5px;
   }
 
   .badge-token {
-    font-size: 11px;
-    padding: 8px 12px;
+    width: 46px;
+    height: 36px;
   }
 
-  .door-opening-seam {
-    width: 5px;
+  .custom-audio-player {
+    grid-template-columns: 1fr;
+  }
+
+  .narration-toggle {
+    width: 100%;
+  }
+
+  .audio-time {
+    text-align: center;
   }
 }
