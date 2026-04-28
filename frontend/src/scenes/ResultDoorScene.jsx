@@ -348,24 +348,27 @@ function ResultDoorScene({ badge, result, onRestart }) {
           }`}
         >
           {result?.imageUrl ? (
-            <>
+            <div className="door-image-container">
+              {/* Kapalı kapı - kapı cevap verince kaybolur */}
               <img
                 src={result.imageUrl}
                 alt="AI generated symbolic door artwork"
-                className={`door-artwork ${
-                  isDoorResponded ? 'door-artwork-opened' : ''
+                className={`door-artwork door-closed-img ${
+                  isDoorResponded ? 'door-img-hidden' : ''
                 }`}
               />
 
-              <div
-                className="door-panel door-panel-left"
-                style={{ backgroundImage: `url(${result.imageUrl})` }}
-              />
-              <div
-                className="door-panel door-panel-right"
-                style={{ backgroundImage: `url(${result.imageUrl})` }}
-              />
-            </>
+              {/* Açık kapı - sadece kapı cevap verdiğinde fade-in ile belirir */}
+              {result?.openImageUrl && (
+                <img
+                  src={result.openImageUrl}
+                  alt="The door has opened"
+                  className={`door-artwork door-open-img ${
+                    isDoorResponded ? 'door-img-visible' : ''
+                  }`}
+                />
+              )}
+            </div>
           ) : (
             <div className="door-placeholder">
               <span>Symbolic Door Artwork</span>
@@ -393,16 +396,13 @@ function ResultDoorScene({ badge, result, onRestart }) {
           )}
 
           {isDoorResponded && (
-            <>
-              <div className="door-opening-seam" />
-              <div className="release-overlay">
-                <p>
-                  {text.overlayLineOne}
-                  <br />
-                  {text.overlayLineTwo}
-                </p>
-              </div>
-            </>
+            <div className="release-overlay">
+              <p>
+                {text.overlayLineOne}
+                <br />
+                {text.overlayLineTwo}
+              </p>
+            </div>
           )}
         </div>
 
