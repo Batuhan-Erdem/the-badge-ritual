@@ -1,41 +1,74 @@
 # backend/app/prompts/image_prompt.py
 
-def _infer_material_and_mood(text: str) -> tuple[str, str, str]:
+def _infer_material_and_mood(text: str, door_material: str = "") -> tuple[str, str, str]:
     """
-    Very light symbolic mapping so the door can visually change
-    depending on the emotional burden.
-    Returns: (door_material, atmosphere, knocker_material)
+    Maps doorMaterial from LLM output directly to visual door description.
+    Falls back to keyword-based inference if doorMaterial is not provided.
+    Returns: (door_material_desc, atmosphere, knocker_material)
     """
+    # Primary: use the LLM's chosen doorMaterial directly
+    material_map = {
+        "rusted_metal": (
+            "heavily rusted corroded iron and steel, flaking rust, oxidized metal panels, industrial decay",
+            "grim, industrial, corroded, tense, decaying",
+            "rusted iron"
+        ),
+        "dark_iron": (
+            "solid dark iron with cold blackened surface, heavy forged metal, ancient military craftsmanship",
+            "austere, cold, imposing, militaristic, unyielding",
+            "dark iron ring"
+        ),
+        "fragile_wood": (
+            "thin pale cracked wood with splintering edges, fragile and worn, almost falling apart",
+            "delicate, anxious, fragile, trembling, melancholic",
+            "tarnished brass"
+        ),
+        "heavy_wood": (
+            "massive thick dark oak planks with iron reinforcement, imposing and ancient",
+            "heavy, solemn, serious, weighty, ceremonial",
+            "aged iron"
+        ),
+        "old_wood": (
+            "weathered aged wood with softened worn grain, quiet and familiar",
+            "quiet, melancholic, dim, intimate, nostalgic",
+            "aged bronze"
+        ),
+    }
+
+    if door_material and door_material in material_map:
+        return material_map[door_material]
+
+    # Fallback: keyword inference
     content = (text or "").lower()
 
+    rusted_words = [
+        "corporate", "martyr", "toxic", "work", "job", "burnout", "machine",
+        "industry", "rust", "metal", "office", "kurumsal", "toksik", "iş", "yanma"
+    ]
     hard_words = [
         "anger", "angry", "rage", "control", "power", "armor", "mask",
-        "strong", "strength", "hard", "strict", "cold",
-        "öfke", "kontrol", "güç", "maske", "sert", "katı", "soğuk"
+        "strong", "strength", "hard", "strict", "cold", "guardian", "military",
+        "duty", "protect", "soldier", "unbending",
+        "öfke", "kontrol", "güç", "maske", "sert", "katı", "soğuk", "koruyucu"
     ]
     sad_words = [
         "sad", "grief", "loss", "lonely", "loneliness", "silence", "tired",
-        "sorrow", "exhausted", "broken",
-        "üzgün", "yas", "kayıp", "yalnız", "sessizlik", "yorgun", "kırık"
+        "sorrow", "exhausted", "broken", "fragile", "weak", "pleaser",
+        "üzgün", "yas", "kayıp", "yalnız", "sessizlik", "yorgun", "kırık", "kırılgan"
     ]
     guilt_words = [
         "guilt", "shame", "regret", "burden", "fear",
         "suçluluk", "utanç", "pişmanlık", "yük", "korku"
     ]
 
+    if any(word in content for word in rusted_words):
+        return material_map["rusted_metal"]
+
     if any(word in content for word in hard_words):
-        return (
-            "heavy dark wood reinforced with aged iron details",
-            "tense, still, solemn, emotionally weighty",
-            "dark iron"
-        )
+        return material_map["dark_iron"]
 
     if any(word in content for word in sad_words):
-        return (
-            "weathered old wood with softened worn edges",
-            "quiet, melancholic, dim, intimate",
-            "aged bronze"
-        )
+        return material_map["fragile_wood"]
 
     if any(word in content for word in guilt_words):
         return (
@@ -44,20 +77,16 @@ def _infer_material_and_mood(text: str) -> tuple[str, str, str]:
             "tarnished brass"
         )
 
-    return (
-        "aged wooden door with subtle worn texture",
-        "quiet, cinematic, symbolic, serious",
-        "aged bronze"
-    )
+    return material_map["old_wood"]
 
 
-def build_image_prompt(badge_title: str = "", badge_text: str = "") -> str:
+def build_image_prompt(badge_title: str = "", badge_text: str = "", door_material: str = "") -> str:
     """
     Main image prompt builder.
     This is the function we want the app to use.
     """
     symbolic_input = f"{badge_title} {badge_text}".strip()
-    door_material, atmosphere, knocker_material = _infer_material_and_mood(symbolic_input)
+    door_material_desc, atmosphere, knocker_material = _infer_material_and_mood(symbolic_input, door_material)
 
     return f"""
 Create a symbolic, cinematic digital artwork of a single door that represents a personal threshold.
@@ -77,7 +106,7 @@ VERY IMPORTANT COMPOSITION RULES:
 - The scene should visually focus on the door itself.
 
 DOOR DETAILS:
-- The door is made of {door_material}.
+- The door is made of {door_material_desc}.
 - The door has a visible circular knocker made of {knocker_material}.
 - The knocker should sit in the upper-middle area of the door and be clearly visible.
 - A small sheriff-style metal badge lies on the ground at the threshold, beneath the door.
@@ -127,7 +156,17 @@ def get_image_prompt(badge_title: str = "", badge_text: str = "") -> str:
 def create_image_prompt(badge_title: str = "", badge_text: str = "") -> str:
     return build_image_prompt(badge_title, badge_text)
 
-def strengthen_image_prompt(base_prompt: str) -> str:
+def strengthen_image_prompt(base_prompt: str, door_material: str = "") -> str:
+    material_desc_map = {
+        "rusted_metal": "heavily rusted corroded iron and steel, flaking rust, oxidized metal panels, industrial decay",
+        "dark_iron": "solid dark iron with cold blackened surface, heavy forged metal, ancient military craftsmanship",
+        "fragile_wood": "thin pale cracked wood with splintering edges, fragile and worn, almost falling apart",
+        "heavy_wood": "massive thick dark oak planks with iron reinforcement, imposing and ancient",
+        "old_wood": "weathered aged wood with softened worn grain, quiet and familiar",
+    }
+    material_desc = material_desc_map.get(door_material, "")
+    material_line = f"- CRITICAL: The door material MUST be {material_desc}. This is the most important visual requirement.\n" if material_desc else ""
+
     return f"""
 {base_prompt}
 
@@ -145,9 +184,9 @@ VERY IMPORTANT COMPOSITION RULES:
 - Avoid large black empty space under the threshold.
 
 MANDATORY VISUAL REQUIREMENTS:
-- symbolic digital artwork
+{material_line}- symbolic digital artwork
 - one central door as the main subject
-- the door material must be visually clear
+- the door material must be visually clear and dominant
 - a visible circular door knocker must be placed clearly on the upper-middle center of the door
 - a small symbolic metal badge must rest on the ground near the threshold
 - the badge should feel like a burden that has been put down

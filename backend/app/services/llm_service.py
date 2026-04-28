@@ -127,7 +127,10 @@ def generate_ritual_response(badge: str, origin: str, cost: str) -> dict:
                     "content": (
                         "You are a careful JSON-generating ritual writer for an "
                         "interactive digital artwork. Always return valid JSON "
-                        "that matches the requested schema."
+                        "that matches the requested schema.\n"
+                        "CRITICAL RULES:\n"
+                        "1. Write the response in the SAME LANGUAGE as the user's input.\n"
+                        "2. For 'doorMaterial', closely analyze the theme. If it is corporate, toxic, or industrial, MUST pick 'rusted_metal'. If it is strict duty or military, MUST pick 'dark_iron'. If it is emotional vulnerability, pick 'fragile_wood'."
                     ) + schema_prompt,
                 },
                 {
@@ -142,7 +145,8 @@ def generate_ritual_response(badge: str, origin: str, cost: str) -> dict:
     ritual_data = json.loads(raw_text)
 
     ritual_data["imagePrompt"] = strengthen_image_prompt(
-        ritual_data["imagePrompt"]
+        ritual_data["imagePrompt"],
+        door_material=ritual_data.get("doorMaterial", "")
     )
 
     return ritual_data

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import './ResultDoorScene.css'
 import {
   startAmbientSoundscape,
@@ -240,6 +240,20 @@ function ResultDoorScene({ badge, result, onRestart }) {
   const fallback = fallbackGuidance[language]
   const doorMaterial = result?.doorMaterial || 'old_wood'
 
+  // Kapı açıldığında atmosfer müziğini başlat
+  // Tarayıcının auto-play engelini aşmak için kısa bir gecikme kullanıyoruz
+  // (Kullanıcı zaten önceki sayfada tıkladığı için izin verilmiş olur)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      startAmbientSoundscape(doorMaterial)
+    }, 300)
+
+    return () => {
+      clearTimeout(timer)
+      stopAmbientSoundscape()
+    }
+  }, [doorMaterial])
+
   const isBadgePlaced =
     ritualStep === 'afterBadge' ||
     ritualStep === 'knock' ||
@@ -258,30 +272,28 @@ function ResultDoorScene({ badge, result, onRestart }) {
   const progress =
     audioDuration > 0 ? Math.min((audioCurrentTime / audioDuration) * 100, 100) : 0
 
-  function stopNarrationAndAmbient() {
+  function stopNarrationOnly() {
     if (audioRef.current) {
       audioRef.current.pause()
     }
-
     setIsNarrationPlaying(false)
-    stopAmbientSoundscape()
   }
 
   async function toggleNarration() {
     if (!audioRef.current) return
 
     if (isNarrationPlaying) {
-      stopNarrationAndAmbient()
+      stopNarrationOnly()
       return
     }
 
-    await startAmbientSoundscape(doorMaterial)
+    audioRef.current.volume = 1.0 
     await audioRef.current.play()
     setIsNarrationPlaying(true)
   }
 
   function goToBadgePlacement() {
-    stopNarrationAndAmbient()
+    stopNarrationOnly()
     setRitualStep('badge')
   }
 
@@ -316,7 +328,8 @@ function ResultDoorScene({ badge, result, onRestart }) {
   }
 
   function handleRestart() {
-    stopNarrationAndAmbient()
+    stopNarrationOnly()
+    stopAmbientSoundscape()
     onRestart()
   }
 
@@ -418,7 +431,6 @@ function ResultDoorScene({ badge, result, onRestart }) {
                 onEnded={() => {
                   setIsNarrationPlaying(false)
                   setAudioCurrentTime(0)
-                  stopAmbientSoundscape()
                 }}
               />
 

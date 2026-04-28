@@ -6,44 +6,44 @@ let isPlaying = false
 
 const materialSoundProfiles = {
   old_wood: {
-    droneFrequency: 92,
-    secondDroneFrequency: 138,
-    noiseAmount: 0.035,
-    masterVolume: 0.22,
+    droneFrequency: 184, // Octave up
+    secondDroneFrequency: 276,
+    noiseAmount: 0.1, // Increased
+    masterVolume: 2.0, // Increased dramatically
     pulseNotes: [184, 207, 232, 276],
-    pluckVolume: 0.07,
+    pluckVolume: 0.6, // Increased
   },
   heavy_wood: {
-    droneFrequency: 78,
-    secondDroneFrequency: 124,
-    noiseAmount: 0.034,
-    masterVolume: 0.24,
+    droneFrequency: 156,
+    secondDroneFrequency: 248,
+    noiseAmount: 0.1,
+    masterVolume: 2.2,
     pulseNotes: [156, 185, 208, 247],
-    pluckVolume: 0.075,
+    pluckVolume: 0.6,
   },
   rusted_metal: {
-    droneFrequency: 68,
-    secondDroneFrequency: 171,
-    noiseAmount: 0.04,
-    masterVolume: 0.22,
+    droneFrequency: 136,
+    secondDroneFrequency: 342,
+    noiseAmount: 0.15,
+    masterVolume: 2.0,
     pulseNotes: [171, 205, 256, 342],
-    pluckVolume: 0.065,
+    pluckVolume: 0.5,
   },
   dark_iron: {
-    droneFrequency: 55,
-    secondDroneFrequency: 110,
-    noiseAmount: 0.045,
-    masterVolume: 0.25,
+    droneFrequency: 110,
+    secondDroneFrequency: 220,
+    noiseAmount: 0.15,
+    masterVolume: 2.5,
     pulseNotes: [110, 165, 220, 247],
-    pluckVolume: 0.07,
+    pluckVolume: 0.6,
   },
   fragile_wood: {
-    droneFrequency: 104,
-    secondDroneFrequency: 156,
-    noiseAmount: 0.026,
-    masterVolume: 0.2,
+    droneFrequency: 208,
+    secondDroneFrequency: 312,
+    noiseAmount: 0.1,
+    masterVolume: 1.8,
     pulseNotes: [208, 247, 277, 330],
-    pluckVolume: 0.058,
+    pluckVolume: 0.5,
   },
 }
 

@@ -41,14 +41,31 @@ def generate_ritual_image(image_prompt: str) -> str:
         # Fallback to Stable Diffusion API
         payload = {
             "prompt": image_prompt,
-            "steps": 20,
-            "width": 1024,
-            "height": 1024
+            "steps": 15,
+            "width": 512,
+            "height": 512
         }
         with httpx.Client() as client_http:
-            res = client_http.post(SD_API_URL, json=payload, timeout=60.0)
+            print("[IMAGE DEBUG] Sending request to SD API...", flush=True)
+            res = client_http.post(SD_API_URL, json=payload, timeout=None)
             res.raise_for_status()
             image_b64 = res.json()["images"][0]
+            print("[IMAGE DEBUG] Received response from SD API.", flush=True)
+            
+            upscale_url = SD_API_URL.replace("txt2img", "extra-single-image")
+            upscale_payload = {
+                "upscaling_resize": 2,
+                "upscaler_1": "Lanczos",
+                "image": image_b64
+            }
+            print("[IMAGE DEBUG] Sending request to SD Upscale API...", flush=True)
+            try:
+                upscale_res = client_http.post(upscale_url, json=upscale_payload, timeout=None)
+                upscale_res.raise_for_status()
+                image_b64 = upscale_res.json().get("image", image_b64)
+                print("[IMAGE DEBUG] Upscale complete.", flush=True)
+            except Exception as e:
+                print(f"[IMAGE DEBUG] Upscale failed, using original 512x512 image: {e}", flush=True)
 
     file_name = f"ritual_{uuid.uuid4().hex}.png"
     file_path = GENERATED_DIR / file_name

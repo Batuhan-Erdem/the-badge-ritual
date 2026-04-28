@@ -1,6 +1,19 @@
+import { useEffect, useRef } from 'react'
+
 function LoadingRitualScene() {
+  const audioRef = useRef(null)
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.5 // Subtle background volume
+      audioRef.current.play().catch((e) => console.log("Auto-play prevented", e))
+    }
+  }, [])
+
   return (
     <section className="scene loading-scene">
+      <audio ref={audioRef} src="/ambient3.wav" loop />
+
       <p className="eyebrow">The Door Is Listening</p>
 
       <h1>A threshold is forming from what you could no longer carry.</h1>
