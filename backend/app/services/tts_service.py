@@ -1,5 +1,6 @@
 import os
 import uuid
+import asyncio
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -19,7 +20,7 @@ if OPENAI_API_KEY:
     TTS_VOICE = os.getenv("OPENAI_TTS_VOICE", "onyx")
     USE_OPENAI = True
 else:
-    TTS_MODEL_PATH = os.getenv("TTS_MODEL_PATH", "tts_models/en/ljspeech/vits")
+    EDGE_TTS_VOICE = os.getenv("EDGE_TTS_VOICE", "en-US-ChristopherNeural")
     USE_OPENAI = False
 
 AUDIO_DIR = Path(__file__).resolve().parent.parent.parent / "generated" / "audio"
@@ -87,20 +88,17 @@ def generate_ritual_voice(tts_text: str, door_material: str = "old_wood") -> str
             ) as response:
                 response.stream_to_file(voice_path)
         else:
-            # Local TTS using Coqui TTS
-            voice_file_name = f"ritual_voice_{unique_id}.wav"
+            # Local TTS using Edge-TTS
+            voice_file_name = f"ritual_voice_{unique_id}.mp3"
             voice_path = AUDIO_DIR / voice_file_name
             
-            # Import TTS locally so it doesn't break if OPENAI is used and TTS not installed
-            try:
-                from TTS.api import TTS
-                import torch
-                device = "cuda" if torch.cuda.is_available() else "cpu"
-                tts = TTS(TTS_MODEL_PATH).to(device)
-                tts.tts_to_file(text=prepared_text, file_path=str(voice_path))
-            except ImportError:
-                print("[TTS DEBUG] TTS library not found. Please install it with 'pip install TTS'", flush=True)
-                raise
+            import edge_tts
+            
+            async def _generate_edge_tts():
+                communicate = edge_tts.Communicate(prepared_text, EDGE_TTS_VOICE)
+                await communicate.save(str(voice_path))
+                
+            asyncio.run(_generate_edge_tts())
 
         print("[TTS DEBUG] Voice-only TTS generation completed.", flush=True)
         print(f"[TTS DEBUG] Voice file created: {voice_file_name}", flush=True)
