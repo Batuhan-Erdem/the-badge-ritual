@@ -1,4 +1,5 @@
 import time
+import concurrent.futures
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -36,28 +37,26 @@ def create_ritual(request: RitualRequest):
 
         log_step("Step 1 completed: LLM ritual response generated.")
         log_step(f"Door material: {ritual_result.get('doorMaterial', 'missing')}")
-        log_step("Step 2 started: Image generation.")
+        log_step("Steps 2 & 3 started: Parallel Image and TTS generation.")
 
-        generated_file_name = generate_ritual_image(
-            ritual_result["imagePrompt"]
-        )
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            future_image = executor.submit(
+                generate_ritual_image, ritual_result["imagePrompt"]
+            )
+            future_audio = executor.submit(
+                generate_ritual_voice,
+                tts_text=ritual_result["ttsText"],
+                door_material=ritual_result.get("doorMaterial", "old_wood")
+            )
+            
+            # Wait for both to finish and get their results
+            generated_file_name = future_image.result()
+            generated_audio_file_name = future_audio.result()
 
-        log_step("Step 2 completed: Image generated.")
+        log_step("Steps 2 & 3 completed: Parallel generation finished.")
 
         image_url = f"http://127.0.0.1:8000/generated/{generated_file_name}"
-
-        log_step("Step 3 started: TTS voice + ambience generation.")
-
-        generated_audio_file_name = generate_ritual_voice(
-            tts_text=ritual_result["ttsText"],
-            door_material=ritual_result.get("doorMaterial", "old_wood"),
-        )
-
-        log_step("Step 3 completed: Audio generated.")
-
-        audio_url = (
-            f"http://127.0.0.1:8000/generated/audio/{generated_audio_file_name}"
-        )
+        audio_url = f"http://127.0.0.1:8000/generated/audio/{generated_audio_file_name}"
 
         elapsed = round(time.time() - started_at, 2)
         log_step(f"Ritual completed in {elapsed} seconds.")
