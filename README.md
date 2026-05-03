@@ -400,33 +400,67 @@ Release Text: You do not have to prove your strength by hiding your exhaustion.
 
 ## 12. Screenshots and Demo Evidence
 
-Screenshots should be added to the repository under a folder such as:
+The project includes screenshots that demonstrate the full ritual flow, from the first screen to the final door response.
 
-```text
-screenshots/
-```
+### 1. Opening Screen
 
-Recommended screenshots:
+The user first enters the ritual space and is invited to begin.
 
-1. Home / input screen
-2. Loading screen
-3. Generated door result
-4. Spoken narration player
-5. Badge hanging on the door
-6. Badge released to the threshold
-7. Knock interaction
-8. Final door response
+![Opening Screen](screenshots/opening-screen.png)
 
-Suggested README image format:
+### 2. Badge Input Screen
 
-```md
-![Input Screen](screenshots/input-screen.png)
-![Generated Door](screenshots/generated-door.png)
-![Badge Release](screenshots/badge-release.png)
+The user names the emotional badge they are still carrying.
+
+![Badge Input Screen](screenshots/badge-input-screen.png)
+
+### 3. Badge Origin and Cost Screen
+
+The user explains when they first started carrying the badge and what it has cost them.
+
+![Badge Origin and Cost Screen](screenshots/badge-origin-cost-screen.png)
+
+### 4. Ritual Generation Loading Screen
+
+The system processes the user’s words and begins forming the symbolic threshold.
+
+![Ritual Generation Loading Screen](screenshots/ritual-loading-screen.png)
+
+### 5. Generated Ritual Result
+
+The project displays the generated badge title, symbolic door image, voice narration, badge text, door character, historical echo, and release text.
+
+![Generated Ritual Result](screenshots/generated-ritual-result.png)
+
+### 6. Historical Echo and Release Text
+
+This screen shows the historical echo connected to Dylan’s 1973 context and the generated release text.
+
+![Historical Echo and Release Text](screenshots/historical-echo-release-text.png)
+
+### 7. Badge Placement Screen
+
+The user prepares to place the badge before the door.
+
+![Badge Placement Screen](screenshots/badge-placement-screen.png)
+
+### 8. Badge Released Screen
+
+The badge is placed at the threshold, visually showing that the burden is no longer carried in the same way.
+
+![Badge Released Screen](screenshots/badge-released-screen.png)
+
+### 9. Knock Interaction Screen
+
+The user approaches the knocker and knocks twice to continue the ritual.
+
+![Knock Interaction Screen](screenshots/knock-interaction-screen.png)
+
+### 10. Final Door Response
+
+The door opens slightly and gives the final symbolic response.
+
 ![Final Door Response](screenshots/final-door-response.png)
-```
-
----
 
 ## 13. Original Code Contributions
 
