@@ -103,3 +103,13 @@ In the end, the project does not claim that a person can be healed by clicking a
 That small opening is the meaning of the project. Not a full answer, not a final cure, but a threshold. The badge is still part of the story, but it is no longer attached to the body. It has been placed at the door.
 
 And then, finally, the user knocks.
+
+
+## Team Information
+
+This project was created by **Batuhan Erdem** and **Müslüm Agah**.
+
+- **Batuhan Erdem** — Student No: 20230808611
+- **Müslüm Agah** — Student No: 20210808042
+
+Both team members contributed to the creative concept, technical development, testing process, and final presentation of the artwork.

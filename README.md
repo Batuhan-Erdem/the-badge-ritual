@@ -601,8 +601,16 @@ Before submission, check that:
 
 ## 19. Author
 
-**Batuhan Erdem**
-Computer Engineering Student
+## 19. Team Members
+
+**Batuhan Erdem**  
+Student No: 20230808611  
+Computer Engineering Student  
+CSE 358 — Introduction to Artificial Intelligence
+
+**Müslüm Agah**  
+Student No: 20210808042  
+Computer Engineering Student  
 CSE 358 — Introduction to Artificial Intelligence
 
 ---
